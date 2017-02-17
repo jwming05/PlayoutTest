@@ -50,6 +50,26 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Common\IDateTimeService.cs" />
+    <Compile Include="Common\IMediaSource.cs" />
+    <Compile Include="Common\MarkableMediaSource.cs" />
+    <Compile Include="PlaylistManager.cs" />
+    <Compile Include="PlaylistSegmentBuilder.cs" />
+    <Compile Include="Playout\IPlayer.cs" />
+    <Compile Include="Playout\IPlayerCreator.cs" />
+    <Compile Include="Temp\IPlayItem.cs" />
+    <Compile Include="Common\PlayRange.cs" />
+    <Compile Include="PlaySource\PlaySourceSegment.cs" />
+    <Compile Include="PlaySource\IPlaySource.cs" />
+    <Compile Include="SchedulablePlayItem\ISchedulablePlayItem.cs" />
+    <Compile Include="Temp\PlaybillManager.cs" />
+    <Compile Include="Playout\PlayoutSystem.cs" />
+    <Compile Include="PlaySource\PlaySource.cs" />
+    <Compile Include="SchedulablePlayItem\SchedulablePlayItem.cs" />
+    <Compile Include="Common\ScheduleInfo.cs" />
+    <Compile Include="Playout\PlayScheduler.cs" />
+    <Compile Include="Common\ScheduleMode.cs" />
+    <Compile Include="Temp\IPlaylist.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

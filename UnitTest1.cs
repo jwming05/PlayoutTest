@@ -9,6 +9,9 @@ namespace PlayoutTest
         [TestMethod]
         public void TestMethod1()
         {
+            var playRange = new PlayRange(TimeSpan.Zero, TimeSpan.Zero);
+
+            Assert.IsTrue(playRange==new PlayRange());
         }
     }
 }
