@@ -6,12 +6,6 @@ using System.Threading.Tasks;
 
 namespace PlayoutTest
 {
-    public interface IMediaSource
-    {
-        string Title { get; }
-        TimeSpan? NativeDuration { get; }
-    }
-
     public static class MediaSourceExtensions
     {
         public static bool HasNativeDuration(this IMediaSource mediaSource)
@@ -27,7 +21,7 @@ namespace PlayoutTest
 
         public static bool IsValidPlayRange(this IMediaSource mediaSource, PlayRange playRange)
         {
-            return !mediaSource.HasNativeDuration() || 
+            return !mediaSource.HasNativeDuration() ||
                 (playRange.StartPosition >= TimeSpan.Zero && playRange.StopPosition <= mediaSource.NativeDuration.Value);
         }
 
@@ -71,7 +65,7 @@ namespace PlayoutTest
 
             if (mediaSource.HasNativeDuration())
             {
-                return PlayRange.Merge(range1,range2);
+                return PlayRange.Merge(range1, range2);
             }
             else
             {

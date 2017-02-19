@@ -1,4 +1,4 @@
-﻿namespace PlayoutTest
+﻿namespace FCSPlayout
 {
     public interface IPlayItem
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PlayoutTest
+namespace FCSPlayout
 {
     public interface IDateTimeService
     {

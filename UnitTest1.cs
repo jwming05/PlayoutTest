@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PlayoutTest
+namespace FCSPlayout.Test
 {
     [TestClass]
     public class UnitTest1

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PlayoutTest
 {
-    public class PlaySource : IPlaySource
+    public class PlaySource  : IPlaySource
     {
         public static IPlaySource Create(MarkableMediaSource markableMediaSource)
         {

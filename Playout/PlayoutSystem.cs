@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlayoutTest
+namespace FCSPlayout
 {
     public class PlayoutSystem
     {
@@ -40,11 +40,8 @@ namespace PlayoutTest
                 }
             }
 
-            
-
             _currentPlayItem = _nextPlayItem;
             _nextPlayItem = null;
-
 
             // 移除列表中在current play item前面的所有playItem
             // 如果播放时长不小于某个值，则解锁current play item // ?
