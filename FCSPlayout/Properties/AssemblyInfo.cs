@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("PlayoutTest")]
+[assembly: AssemblyTitle("FCSPlayout")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PlayoutTest")]
+[assembly: AssemblyProduct("FCSPlayout")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("22e4fe1d-a82f-4a18-a147-0e12f1d82835")]
+[assembly: Guid("f22910b6-bdba-43e4-a5f2-bb800454c97d")]
 
 // 程序集的版本信息由下列四个值组成: 
 //

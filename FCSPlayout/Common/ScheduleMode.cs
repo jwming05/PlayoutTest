@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace FCSPlayout
 {
-    public interface IPlayerCreator
+    public enum ScheduleMode
     {
-        IPlayer Create(IPlayItem playItem); 
+        Auto,
+        Timing,
+        TimingBreak
     }
 }
