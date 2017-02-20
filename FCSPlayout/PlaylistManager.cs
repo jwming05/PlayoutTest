@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,13 +26,105 @@ namespace FCSPlayout
         /// <returns></returns>
         private int FindTimingInsertIndex(DateTime startTime)
         {
-            // 获取插入位置，执行插入。
+            // 获取定时播或定时插播的插入位置。
             // 第一个开始时间大于等于startTime的索引（-1表示列表为空或开始时间全部小于startTime）
             int index = _playlist.FindFirstIndex((i) => !i.IsSkipped() && i.ScheduleInfo.StartTime >= startTime);
-
             // index==-1是在尾部插入（包含_playlist为空的情况）。
-            index = index < 0 ? _playlist.Count : index;
+            index = index < 0 ? _playlist.Count : index;            
             return index;
+        }
+
+        private void AddTiming2(DateTime startTime, IPlaySource playSource)
+        {
+            // 验证操作的合法性。
+            ValidatePlayDuration(playSource.PlayRange.Duration);
+            ValidateStartTime(startTime, false);
+            EnsureNoTimingConflict(startTime, playSource.PlayRange.Duration);
+
+            // 触发事件前置事件。
+
+            
+
+            List<PlaybillItem> tempList = new List<PlaybillItem>();
+
+            // 重新计算调度信息。
+            DateTime beginTime;
+            
+
+            var prevIndex = _playlist.FindLastIndex(i => !i.IsSkipped() && i.ScheduleInfo.StopTime <= startTime);
+                        
+            if (prevIndex == -1)
+            {
+                if (_playlist.Count==0)
+                {
+                    if(_playlist.HasMinStartTime() && _playlist.MinStartTime.Value < startTime)
+                    {
+                        beginTime = _playlist.MinStartTime.Value;
+                    }
+                    else
+                    {
+                        beginTime = startTime;
+                    }
+                }
+                else
+                {
+                    beginTime = _playlist[0].ScheduleInfo.StartTime; // startTime;
+                    beginTime = beginTime > startTime ? startTime : beginTime;
+                }
+                
+                // [prevIndex+1, index-1], 注：index-prevIndex+1
+                // 替换范围：[prevIndex+1, index-1] (删除的起始索引0==prevIndex+1,数量index==index-prevIndex-1)
+            }
+            else
+            {
+                beginTime = _playlist[prevIndex].ScheduleInfo.StopTime;
+                // 注：prevIndex可能等于index-1。
+                // 当prevIndex小于index-1时。
+                // 替换范围：[prevIndex + 1, index-1] (删除的起始索引prevIndex + 1,数量index-prevIndex-1 )
+
+                // 当prevIndex等于index-1时。(删除的起始索引prevIndex + 1==index,数量index-prevIndex-1==0 )
+                // 在index处插入0个或1个。
+            }
+
+            DateTime endTime;
+            var nextIndex = _playlist.FindFirstIndex(prevIndex + 1, i => !i.IsSkipped() && i.ScheduleInfo.ScheduleMode == ScheduleMode.Timing && i.ScheduleInfo.StartTime > startTime);
+            //beginTime = playItem.ScheduleInfo.StopTime;
+            if (nextIndex == -1)
+            {
+                endTime = DateTime.MaxValue;
+                nextIndex = _playlist.Count;
+
+                // [index + 1, _playlist.Count - 1], 注：index + 1可能等于_playlist.Count - 1
+                // 替换范围：[index + 1, _playlist.Count - 1] (删除的起始索引index + 1, 数量nextIndex-index-1==_playlist.Count-index-1)
+            }
+            else
+            {
+                endTime = _playlist[nextIndex].ScheduleInfo.StartTime;
+
+                // 注：nextIndex可能等于index+1。
+                // 当nextIndex大于index+1时。
+                // 替换范围：[index+1, nextIndex-1] (删除的起始索引index+1,数量nextIndex-index-1 )
+
+                // 当nextIndex等于index+1时。(删除的起始索引index+1, 数量nextIndex-index-1==0 )
+                // 在index+1处插入0个或1个。          
+            }
+
+            PlaybillItem playItem = PlaybillItem.CreateTiming(startTime, new NormalPlaySource(playSource), false);
+
+            Debug.Assert(beginTime <= endTime);
+            Debug.Assert(beginTime <= startTime && endTime > playItem.ScheduleInfo.StopTime);
+
+            for (int i = prevIndex + 1; i < nextIndex; i++)
+            {
+                tempList.Add(_playlist[i].PlaybillItem);
+                //builder.Add(_playlist[i].PlaybillItem);
+            }
+
+            // case 1: prevIndex + 1==nextIndex-1，替换起始位置prevIndex + 1，删除数量1 (nextIndex-1-prevIndex)
+            // case 2: prevIndex + 1<nextIndex-1，替换起始位置prevIndex + 1，删除数量1 (nextIndex-1-prevIndex)
+            // case 3: prevIndex + 1>nextIndex-1
+            // 替换范围为[prevIndex + 1, nextIndex-1]
+            // 触发事件（表示操作完成）。
         }
 
         private void AddTiming(DateTime startTime, IPlaySource playSource)
@@ -44,8 +137,9 @@ namespace FCSPlayout
 
             // 获取插入位置。
             // 第一个开始时间大于等于startTime的索引（-1表示列表为空或开始时间全部小于startTime）
-            int index = _playlist.FindFirstIndex((i)=>!i.IsSkipped() && i.ScheduleInfo.StartTime>=startTime);
-            index = index < 0 ? _playlist.Count : index;
+            int index = FindTimingInsertIndex(startTime);
+            //_playlist.FindFirstIndex((i)=>!i.IsSkipped() && i.ScheduleInfo.StartTime>=startTime);
+            //index = index < 0 ? _playlist.Count : index;
 
             // 下面的处理代码确保顺播片断不会被定时播分隔。
             var tempIndex = index;
@@ -172,6 +266,11 @@ namespace FCSPlayout
             // 触发事件（表示操作完成）。
         }
 
+        private void EnsureNoTimingConflict(DateTime startTime, TimeSpan duration)
+        {
+            _playlist.EnsureNoTimingConflict(startTime, duration);
+        }
+
         private void ValidateStartTime(DateTime startTime, bool isBreak)
         {
             if (_playlist.HasMinStartTime() && startTime < _playlist.MinStartTime.Value)
@@ -186,7 +285,12 @@ namespace FCSPlayout
 
         private void ValidatePlayDuration(TimeSpan duration)
         {
-            
+            if (duration < this.Configuration.MinPlayDuration)
+            {
+                throw new ArgumentOutOfRangeException("duration",
+                        string.Format("新添加的播放项的播放时长无效<{0}>，必须大于等于{2}。", 
+                        duration, this.Configuration.MinPlayDuration));
+            }
         }
 
         private void Replace(int startIndex, int deleteCount, IList<PlaybillItem> insertList)
@@ -203,11 +307,7 @@ namespace FCSPlayout
             }
         }
 
-        // 确保没有定时冲突。
-        private void EnsureNoTimingConflict(DateTime startTime, TimeSpan duration)
-        {
-            _playlist.EnsureNoTimingConflict(startTime, duration);
-        }
+        
 
         private void Insert(int index, IPlaylistItem playItem)
         {
